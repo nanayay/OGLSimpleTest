@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "OGLSimpleTest.h"
+#include "WGLRenderer.h"
 
 #define MAX_LOADSTRING 100
 
@@ -16,6 +17,10 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+//
+HWND ghWnd;
+WGLRenderer* wglRenderer = nullptr;
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -42,20 +47,30 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_OGLSIMPLETEST));
 
+    wglRenderer = new WGLRenderer(ghWnd);
+    wglRenderer->init();
+
 	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0))
+    while (true)
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && !TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+        
+        // Do your own stuff here
+        if (msg.message == WM_QUIT)
+        {
+            wglRenderer->cleanup();
+            break;
+        }
+
+        wglRenderer->run();
 	}
 
-	return (int) msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
-
-
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -109,6 +124,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+
+   ghWnd = hWnd;
 
    return TRUE;
 }

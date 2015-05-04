@@ -28,3 +28,11 @@
 *.app
 *.suo
 *.sdf
+*.ilk
+*.pdb
+*.idb
+*.tlog
+*.ipch
+*.opensdf
+OGLSimpleTest/Debug/
+Debug/
